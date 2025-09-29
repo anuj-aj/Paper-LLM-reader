@@ -1,0 +1,32 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "default": {
+          "type": "standard"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "doc_id": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text"
+      },
+      "authors": {
+        "type": "text"
+      },
+      "year": {
+        "type": "integer"
+      },
+      "abstract": {
+        "type": "text"
+      }
+    }
+  }
+}

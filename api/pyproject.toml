@@ -1,0 +1,18 @@
+[project]
+name = "paper-curator-api"
+version = "0.1.0"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "pydantic",
+  "python-dotenv",
+  "requests",
+  "psycopg2-binary",
+  "requests",
+  "pymupdf>=1.23.7",
+  "tiktoken",
+  "streamlit",
+  "python-multipart"
+]
+[tool.streamlit]
+browser.gatherUsageStats = false

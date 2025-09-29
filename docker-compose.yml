@@ -1,0 +1,88 @@
+services:
+  api:
+    build:
+      context: ./api
+    container_name: paper_api
+    ports:
+      - "${API_PORT}:8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - opensearch
+    volumes:
+      - ./data:/app/data
+      - ./scripts:/app/scripts
+
+
+  postgres:
+    image: postgres:14
+    container_name: paper_postgres
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    container_name: paper_opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "${OPENSEARCH_PORT}:9200"
+    volumes:
+      - osdata:/usr/share/opensearch/data
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: paper_ollama
+    ports:
+      - "${OLLAMA_PORT}:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+
+  airflow-webserver:
+    image: apache/airflow:2.7.3-python3.10
+    container_name: paper_airflow_web
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: ${AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION}
+      AIRFLOW__CORE__LOAD_EXAMPLES: ${AIRFLOW__CORE__LOAD_EXAMPLES}
+      AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT: ${AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT}
+      AIRFLOW__CORE__DAGS_FOLDER: ${AIRFLOW__CORE__DAGS_FOLDER}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - airflow_data:/opt/airflow
+    ports:
+      - "8080:8080"
+    command: webserver
+
+  airflow-scheduler:
+    image: apache/airflow:2.7.3-python3.10
+    container_name: paper_airflow_sched
+    restart: always
+    depends_on:
+      - airflow-webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - airflow_data:/opt/airflow
+    command: scheduler
+
+volumes:
+  pgdata:
+  osdata:
+  ollama_models:
+  airflow_data:
