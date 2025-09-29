@@ -1,8 +1,6 @@
 # 🧠 Paper Reader – Your Local NotebookLM
 
-<p align="center">
-  <img src="assets/demo.gif" alt="demo" width="100%" />
-</p>
+
 
 An open-source, local-first alternative to **Google’s NotebookLM** – built with 🐳 Docker, 🧠 Ollama, 🔍 FastAPI, and 🔡 Streamlit.
 
